@@ -1,0 +1,90 @@
+package com.sourabh.Service;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import com.sourabh.Entity.Products;
+import com.sourabh.Repository.ProductRepo;
+import com.sourabh.Request.FilterRequest;
+import com.sourabh.Request.ProductUpdateRequest;
+import com.sourabh.Request.ProductsRequest;
+
+@Service
+public class ProductService {
+	
+	@Autowired
+	private ProductRepo productRepo;
+	
+	@Autowired
+	private ModelMapper  modelMapper;
+
+	@Autowired
+	EntityManager em; 
+	
+	public Products addProduct(ProductsRequest req ){
+		Products prod = this.modelMapper.map(req, Products.class);
+		productRepo.save(prod);
+		return prod;	
+	}
+	
+	public Products updateProduct(ProductUpdateRequest req) {
+		int id = req.getId();
+		Products check = productRepo.findById(id);
+		if(check==null) {
+			return null;
+		}
+		Products prod = this.modelMapper.map(req, Products.class);
+		productRepo.save(prod);
+		return prod;
+	}
+	
+	public Products getById(int id) {
+		Products prod = productRepo.findById(id);
+		return prod;
+	}
+
+	public List<Products> getByCategory(String category) {
+		
+		List<Products> prod = productRepo.findByCategory(category);
+		return prod;
+	}
+	
+	public List<Products> searchString(String searchString) {
+//		List<Products> prod = productRepo.searchByNameLike(searchString);
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Products> cq = cb.createQuery(Products.class);
+		Root<Products> productRoot = cq.from(Products.class);
+		List<Predicate> predicates = new LinkedList<>();
+		if (category != null) {
+		    Predicate categoryPredicate = cb.like(productRoot.get("category"), "%" + category + "%");
+		    predicates.add(categoryPredicate);
+		}
+		Predicate[] predArray = new Predicate[predicates.size()];
+		predicates.toArray(predArray);
+
+		cq.where(predArray);
+		TypedQuery<Products> query = em.createQuery(cq);
+		return query.getResultList();
+		return null;
+	}
+
+	public List<Products> filterPrice(FilterRequest req, String category) {
+		List<Products> prod = productRepo.filterPrice(category,req.getMinPrice(), req.getMaxPrice());
+		return prod;
+	}
+
+	public List<Products> getAllProducts() {
+		return productRepo.findAll();
+	}
+	
+}
