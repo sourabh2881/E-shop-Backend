@@ -1,0 +1,206 @@
+package com.sourabh.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sourabh.Entity.Cart;
+import com.sourabh.Entity.CartItem;
+import com.sourabh.Entity.Products;
+import com.sourabh.Entity.User;
+import com.sourabh.Repository.CartItemRepo;
+import com.sourabh.Repository.CartRepo;
+import com.sourabh.Repository.ProductRepo;
+import com.sourabh.Repository.UserRepo;
+@Service
+public class CartService {
+
+	@Autowired
+	CartRepo cartRepo;
+	
+	@Autowired
+	CartItemRepo cartItemRepo;
+	
+	@Autowired
+	ProductRepo productRepo;
+	
+	@Autowired
+	UserRepo userRepo;
+	
+	public Cart getCart(int uid) {
+		Cart cart = cartRepo.findByUserId(uid);
+		return cart;
+	}
+
+//	if(cartRepo.fin)
+	
+	
+	public CartItem addCart(int uid, int pid) {
+		User user = userRepo.findById(uid);
+		Products product = productRepo.findById(pid);
+		Cart c1 = cartRepo.findByUserId(uid);
+		if(c1==null) {
+			Cart cart = new Cart();
+			cart.setUser(user);
+			Cart cart1 = cartRepo.save(cart);
+			CartItem cartItem = new CartItem();
+			cartItem.setCart(cart1);
+			cartItem.setProduct(product);
+			cartItem.setQuantity(1);
+			List<CartItem> ci = new ArrayList<>();
+			ci.add(cartItem);
+			cart1.setCartItem(ci);
+			Cart c = cartRepo.save(cart1);
+			return cartItem;
+		}
+		else {
+			List<CartItem> list = c1.getCartItem();
+			for(CartItem ci : list) {
+				if(ci.getProduct().getId()==pid) {
+					ci.setQuantity(ci.getQuantity()+1);
+					cartRepo.save(c1);
+					int size = c1.getCartItem().size();
+					return c1.getCartItem().get(size-1);
+				}
+			}
+			CartItem cartItem = new CartItem();
+			cartItem.setCart(c1);
+			cartItem.setProduct(product);
+			cartItem.setQuantity(1);
+			list.add(cartItem);
+			c1.setCartItem(list);
+			cartRepo.save(c1);
+			int size = c1.getCartItem().size();
+			return c1.getCartItem().get(size-1);
+		}
+	}
+
+	public CartItem getCartItem(int uid, int cartitemId) {
+		Cart cart = cartRepo.findByUserId(uid);
+		List<CartItem> list_cartItem = cart.getCartItem();
+		for(CartItem cartItem : list_cartItem) {
+			if(cartItem.getId()==cartitemId) {
+				return cartItem;
+			}
+		}
+		return null;
+	}
+
+	public String removeItem(int uid, int pid) {
+		Cart cart = cartRepo.findByUserId(uid);
+//		List<CartItem> list_cartItem = cart.getCartItem();
+		Products product = productRepo.findById(pid);
+//		List<CartItem> list_cartItem1 = new ArrayList<>();
+//		for(CartItem cartItem : list_cartItem) {
+//			if(cartItem.getProduct().equals(product)) {
+//				System.out.println("jhf");
+//				continue;
+//			}
+//			else {
+//				list_cartItem1.add(cartItem);
+//			}
+//		}
+		CartItem remove = new CartItem();
+		List<CartItem> citems = cartItemRepo.findByProductId( pid);
+		for(CartItem ci : citems) {
+			if(ci.getCart()==cart) {
+				
+				System.out.println("heloo");
+				remove=ci;
+				break;
+
+			}
+		}
+		System.out.println(remove.getId());
+		cartItemRepo.delete(remove);
+//		cart.setCartItem(list_cartItem1);
+//		cartRepo.save(cart);
+//		Products product = productRepo.findById(pid);
+//		Cart cart = cartRepo.findByUserId(uid);
+//		cart.getCartItem().removeIf(cartItem -> Objects.equals(cartItem.getProduct(), product));
+//		for(CartItem ci:cart.getCartItem()) {
+//			System.out.println(ci.getId());
+//		}
+//		cartRepo.saveAndFlush(cart);
+//		CartItem abcd = cartItemRepo.findById(31);
+//		cartItemRepo.delete(abcd);
+		Cart newc = cartRepo.findByUserId(uid);
+		for(CartItem haha: newc.getCartItem()) {
+			System.out.println(haha.getId());
+		}
+		return product.getName();
+	}
+
+	public CartItem changeQuantity(int uid, int pid,int quantity) {
+		Cart cart = cartRepo.findByUserId(uid);
+		List<CartItem> list_cartItem = cart.getCartItem();
+		Products product = productRepo.findById(pid);
+		for(CartItem cartItem : list_cartItem) {
+			if(cartItem.getProduct()==product) {
+				int index = list_cartItem.indexOf(cartItem);
+				list_cartItem.get(index).setQuantity(quantity);
+				cart.setCartItem(list_cartItem);
+				cartRepo.save(cart);
+				return cart.getCartItem().get(index);
+			}
+		}
+			
+		
+		return null;
+	}
+
+}
+
+//
+//Cart cti = cartRepo.findByUserId(user);
+//System.out.println(2);
+//if(cti==null) {
+//	System.out.println("dfj");
+//	
+//	Cart cart = new Cart();
+//	cart.setUser(user);
+//	cartRepo.save(cart);
+//	System.out.println(cart);
+//}
+
+
+//Cart ct = cartRepo.findByUserId(user);
+//System.out.println(3);
+//int cid = ct.getId();
+//System.out.println(4);
+//CartItem ci = cartItemRepo.checkIfProductIdExists(ct, product1).get(0);
+//System.out.println(5);
+//if(ci==null) {
+//	CartItem citem = new CartItem();
+//	Cart cart =  cartRepo.findById(cid);
+//	citem.setCart(cart);
+//	Products product = productRepo.findById(pid);
+//	citem.setProduct(product);
+//	citem.setQuantity(1);
+//	cartItemRepo.save(citem);
+//	return citem;
+//}
+//ci.setQuantity(ci.getQuantity()+1);
+//cartItemRepo.save(ci);
+//return ci;
+
+
+
+
+
+
+
+
+//List<CartItem> ci = cartItemRepo.findByProductId(pid);
+//for(CartItem list : ci) {
+//	if(list.getCart().getUser().getId()==uid) {
+//		list.setQuantity(list.getQuantity()+1);
+//		return cartItemRepo.save(list);
+//	}
+//}
+//ci = c1.getCartItem();
+//ci.get(0).g

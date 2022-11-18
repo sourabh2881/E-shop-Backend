@@ -1,0 +1,32 @@
+package com.sourabh.Response;
+
+import java.util.List;
+
+import com.sourabh.Entity.Products;
+
+public class CreateOrderResponse {
+	int orderId;
+	private List<Products> products;
+	private boolean orderStatus;
+	
+	
+	public int getOrderId() {
+		return orderId;
+	}
+	public void setOrderId(int orderId) {
+		this.orderId = orderId;
+	}
+	public List<Products> getProducts() {
+		return products;
+	}
+	public void setProducts(List<Products> products) {
+		this.products = products;
+	}
+	public boolean isStatus() {
+		return orderStatus;
+	}
+	public void setStatus(boolean status) {
+		this.orderStatus = status;
+	}
+	
+}

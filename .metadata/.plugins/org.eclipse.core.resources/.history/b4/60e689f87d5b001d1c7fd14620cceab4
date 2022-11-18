@@ -1,0 +1,50 @@
+package com.sourabh.Entity;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+
+@Entity
+public class Cart {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer id;
+	
+	@OneToMany(mappedBy = "cart")
+	private CartItem cartItem;
+	
+	@OneToOne
+	@JoinColumn(name = "uid",referencedColumnName ="id")
+	private User user;
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public CartItem getCartItem() {
+		return cartItem;
+	}
+
+	public void setCartItem(CartItem cartItem) {
+		this.cartItem = cartItem;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	
+}
