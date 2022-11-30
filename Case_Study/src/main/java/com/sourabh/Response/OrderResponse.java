@@ -1,15 +1,22 @@
 package com.sourabh.Response;
 
+import java.util.Date;
 import java.util.List;
 
-import com.sourabh.Entity.Products;
 
 public class OrderResponse {
 	private int orderId;
-	private List<Products> products;
+	private List<OrderItemResponse> orderItems;
 	private boolean status;
 	private long price;
+	private Date time;
 	
+	public Date getTime() {
+		return time;
+	}
+	public void setTime(Date time) {
+		this.time = time;
+	}
 	public boolean isStatus() {
 		return status;
 	}
@@ -28,11 +35,11 @@ public class OrderResponse {
 	public void setOrderId(int orderId) {
 		this.orderId = orderId;
 	}
-	public List<Products> getProducts() {
-		return products;
+	public List<OrderItemResponse> getOrderItems() {
+		return orderItems;
 	}
-	public void setProducts(List<Products> products) {
-		this.products = products;
+	public void setOrderItems(List<OrderItemResponse> orderItems) {
+		this.orderItems = orderItems;
 	}
 	
 }

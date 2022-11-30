@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sourabh.Entity.MyOrder;
-import com.sourabh.Entity.OrderItems;
-import com.sourabh.Entity.Products;
+import com.sourabh.Entity.OrderItem;
+import com.sourabh.Response.OrderItemResponse;
 import com.sourabh.Response.OrderResponse;
 import com.sourabh.Service.OrderService;
 
@@ -26,26 +26,9 @@ public class OrderController {
 
 	@GetMapping("/{userId}/getOrders")
 	public List<OrderResponse> getOrders(@PathVariable int userId) {
-		List<OrderResponse> responseList = new ArrayList<>();
-		List<MyOrder> orders = orderService.getOrders(userId);
-		if(orders==null) {
-			return null;
-		}
-		for(MyOrder it: orders) {
-			OrderResponse response = new OrderResponse();
-			response.setOrderId(it.getId());
-			response.setStatus(it.isStatus());
-			response.setPrice(it.getTotalPrice());
-			List<Products> products = new ArrayList<>();
-			for(OrderItems orderItems : it.getOrderItems()) {
-				products.add(orderItems.getProduct());
-			}
-			response.setProducts(products);
-			responseList.add(response);
-		}
+		List<OrderResponse> responseList = orderService.getOrders(userId);
 		return responseList;
 	}
-	
 	
 	
 	@GetMapping("/{userId}/createOrder")
@@ -58,11 +41,16 @@ public class OrderController {
 		response.setOrderId(order.getId());
 		response.setStatus(order.isStatus());
 		response.setPrice(order.getTotalPrice());
-		List<Products> products = new ArrayList<>();
-		for(OrderItems orderItems : order.getOrderItems()) {
-			products.add(orderItems.getProduct());
+		response.setTime(order.getTime());
+		List<OrderItemResponse> orderItemList = new ArrayList<>();
+		for(OrderItem orderItem : order.getOrderItems()) {
+			OrderItemResponse orderItemResponse = new OrderItemResponse();
+			orderItemResponse.setProducts(orderItem.getProduct());
+			orderItemResponse.setQuantity(orderItem.getQuantity());
+			orderItemResponse.setPrice(orderItem.getPrice());
+			orderItemList.add(orderItemResponse);
 		}
-		response.setProducts(products);
+		response.setOrderItems(orderItemList);
 		return response;
 	}
 }

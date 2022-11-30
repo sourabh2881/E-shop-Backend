@@ -1,8 +1,10 @@
 package com.sourabh.Entity;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -10,6 +12,9 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -26,12 +31,29 @@ public class MyOrder {
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-	private List<OrderItems> orderItems;
+	private List<OrderItem> orderItems;
 	
 	private long totalPrice;
 	
 	private boolean status;
 	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(nullable = false)
+	private Date time;
+	
+	@PrePersist
+	private void onCreate() {
+		time = new Date();
+	}
+
+	public Date getTime() {
+		return time;
+	}
+
+	public void setTime(Date time) {
+		this.time = time;
+	}
+
 	public boolean isStatus() {
 		return status;
 	}
@@ -64,11 +86,11 @@ public class MyOrder {
 		this.user = user;
 	}
 
-	public List<OrderItems> getOrderItems() {
+	public List<OrderItem> getOrderItems() {
 		return orderItems;
 	}
 
-	public void setOrderItems(List<OrderItems> orderItems) {
+	public void setOrderItems(List<OrderItem> orderItems) {
 		this.orderItems = orderItems;
 	}
 	

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.sourabh.Entity.Cart;
 import com.sourabh.Entity.CartItem;
-import com.sourabh.Entity.Products;
+import com.sourabh.Entity.Product;
 import com.sourabh.Entity.User;
 import com.sourabh.Repository.CartItemRepo;
 import com.sourabh.Repository.CartRepo;
@@ -35,7 +35,7 @@ public class CartService {
 	
 	public CartItem addCart(int uid, int pid) {
 		User user = userRepo.findById(uid);
-		Products product = productRepo.findById(pid);
+		Product product = productRepo.findById(pid);
 		Cart c1 = cartRepo.findByUserId(uid);
 		
 		// If User Cart doesn't exist
@@ -81,8 +81,8 @@ public class CartService {
 
 	public CartItem getCartItem(int uid, int cartitemId) {
 		Cart cart = cartRepo.findByUserId(uid);
-		List<CartItem> list_cartItem = cart.getCartItem();
-		for(CartItem cartItem : list_cartItem) {
+		List<CartItem> cartItemList = cart.getCartItem();
+		for(CartItem cartItem : cartItemList) {
 			if(cartItem.getId()==cartitemId) {
 				return cartItem;
 			}
@@ -90,9 +90,9 @@ public class CartService {
 		return null;
 	}
 
-	public Products removeItem(int uid, int pid) {
+	public Product removeItem(int uid, int pid) {
 		Cart cart = cartRepo.findByUserId(uid);
-		Products product = productRepo.findById(pid);
+		Product product = productRepo.findById(pid);
 		CartItem remove = new CartItem();
 		List<CartItem> citems = cartItemRepo.findByProductId( pid);
 		for(CartItem ci : citems) {
@@ -110,15 +110,14 @@ public class CartService {
 
 	public CartItem changeQuantity(int uid, int pid,int quantity) {
 		Cart cart = cartRepo.findByUserId(uid);
-		List<CartItem> list_cartItem = cart.getCartItem();
-		Products product = productRepo.findById(pid);
-		for(CartItem cartItem : list_cartItem) {
-			if(cartItem.getProduct()==product) {
-				int index = list_cartItem.indexOf(cartItem);
-				list_cartItem.get(index).setQuantity(quantity);
-				cart.setCartItem(list_cartItem);
+		List<CartItem> cartItemList = cart.getCartItem();
+		Product product = productRepo.findById(pid);
+		for(CartItem cartItem : cartItemList) {
+			if(cartItem.getProduct().equals(product)) {
+				cartItem.setQuantity(quantity);
+				cart.setCartItem(cartItemList);
 				cartRepo.save(cart);
-				return cart.getCartItem().get(index);
+				return cartItem;
 			}
 		}
 		return null;

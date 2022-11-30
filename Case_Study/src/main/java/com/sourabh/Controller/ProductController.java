@@ -1,6 +1,7 @@
 package com.sourabh.Controller;
 
 import java.util.List;
+import java.util.SortedSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sourabh.Entity.Products;
+import com.sourabh.Entity.Product;
 import com.sourabh.Request.FilterRequest;
 import com.sourabh.Request.ProductUpdateRequest;
 import com.sourabh.Request.ProductsRequest;
@@ -30,8 +31,8 @@ public class ProductController {
 
 	@PostMapping("/addProduct")
 	public ResponseEntity<?> addProduct(@RequestBody ProductsRequest req){
-		Products prod = prodService.addProduct(req);
-		return new ResponseEntity<Products> (prod,HttpStatus.OK);
+		Product prod = prodService.addProduct(req);
+		return new ResponseEntity<Product> (prod,HttpStatus.OK);
 	}
 	
 	@PostMapping("/update")
@@ -40,45 +41,50 @@ public class ProductController {
 			GeneralResponse res = new GeneralResponse("Id doesn't Exist");
 			return  new ResponseEntity<GeneralResponse> (res,HttpStatus.BAD_REQUEST);
 		}
-		Products prod = prodService.updateProduct(req);
+		Product prod = prodService.updateProduct(req);
 		if(prod==null) {
 			GeneralResponse res = new GeneralResponse("Id doesn't Exist");
 			return  new ResponseEntity<GeneralResponse> (res,HttpStatus.BAD_REQUEST);
 		}
-		return  new ResponseEntity<Products> (prod,HttpStatus.OK);
+		return  new ResponseEntity<Product> (prod,HttpStatus.OK);
 	}
 	
 	@GetMapping("/getById/{productId}")
-	public ResponseEntity<?> prodById(@PathVariable("productId") int id){
-		Products prod = prodService.getById(id);
+	public ResponseEntity<?> productById(@PathVariable("productId") int id){
+		Product prod = prodService.getById(id);
 		if(prod==null) {
 			GeneralResponse res = new GeneralResponse("Id doesn't Exist");
 			return  new ResponseEntity<GeneralResponse> (res,HttpStatus.BAD_REQUEST);
 		}
-		return  new ResponseEntity<Products> (prod,HttpStatus.OK);
+		return  new ResponseEntity<Product> (prod,HttpStatus.OK);
 	}
 	
 	@GetMapping("/{category}")
-	public ResponseEntity<?> prodByCat(@PathVariable String category){
-		List<Products> prod = prodService.getByCategory(category);
-		return  new ResponseEntity<List<Products>> (prod,HttpStatus.OK);
+	public ResponseEntity<?> productByCategory(@PathVariable String category){
+		List<Product> prod = prodService.getByCategory(category);
+		return  new ResponseEntity<List<Product>> (prod,HttpStatus.OK);
 	}
 	
 	@GetMapping("/search/{searchString}")
 	public ResponseEntity<?> searchString(@PathVariable String searchString) {
-		 List<Products> resp= prodService.searchString(searchString);
-		 return new ResponseEntity<List<Products>>(resp,HttpStatus.OK);
+		 List<Product> resp= prodService.searchString(searchString);
+		 return new ResponseEntity<List<Product>>(resp,HttpStatus.OK);
 	}
 	
 	@PostMapping("/{category}/getFilteredProducts")
 	public ResponseEntity<?> filterProducts(@PathVariable String category, @RequestBody FilterRequest req ) {
-		List<Products> resp = prodService.filterPrice(req,category);
-		return new ResponseEntity<List<Products>>(resp,HttpStatus.OK);
+		List<Product> resp = prodService.filterPrice(req,category);
+		return new ResponseEntity<List<Product>>(resp,HttpStatus.OK);
 	}
 	
 	@GetMapping("/getAllProducts")
-	public List<Products> filterrrProducts() {
-		List<Products> productList = prodService.getAllProducts();
+	public List<Product> getAllProducts() {
+		List<Product> productList = prodService.getAllProducts();
 		 return productList;
+	}
+	
+	@GetMapping("/getAllCategories")
+	public SortedSet<String> filterrrProducts() {	
+		 return prodService.getAllCategories();
 	}
 }

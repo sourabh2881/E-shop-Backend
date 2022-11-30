@@ -7,17 +7,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.sourabh.Entity.Products;
+import com.sourabh.Entity.Product;
 
 @Repository
-public interface ProductRepo extends JpaRepository<Products, Integer>{
-	Products findById(int id);
-	List<Products> findByCategory(String category);
+public interface ProductRepo extends JpaRepository<Product, Integer>{
+	Product findById(int id);
+	List<Product> findByCategory(String category);
 	
-	@Query("SELECT p FROM Products p WHERE p.name LIKE %:searchString% OR p.category LIKE %:searchString%")
-	List<Products> searchByNameLike(@Param("searchString") String searchString);
-	
-	@Query("SELECT p FROM Products p WHERE p.category LIKE %:ctgry%  AND p.price > :minP AND p.price < :maxP")
-	List<Products> filterPrice(String ctgry , Long minP , Long maxP);
+	@Query("SELECT p FROM Product p WHERE p.category LIKE %:ctgry%  AND p.price > :minP AND p.price < :maxP")
+	List<Product> filterPrice(@Param("ctgry")String category , @Param("minP")Long minPrice , @Param("maxP")Long maxPrice);
 	
 }

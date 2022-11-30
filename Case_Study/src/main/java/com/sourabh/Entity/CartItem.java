@@ -21,7 +21,7 @@ public class CartItem {
 	
 	@OneToOne
 	@JoinColumn(name = "pid",referencedColumnName ="id")
-	private Products product;
+	private Product product;
 	
 	@JsonIgnore
 	@ManyToOne
@@ -43,11 +43,11 @@ public class CartItem {
 		this.quantity = quantity;
 	}
 
-	public Products getProduct() {
+	public Product getProduct() {
 		return product;
 	}
 
-	public void setProduct(Products product) {
+	public void setProduct(Product product) {
 		this.product = product;
 	}
 

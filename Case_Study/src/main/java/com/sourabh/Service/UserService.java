@@ -1,30 +1,41 @@
 package com.sourabh.Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.sourabh.Entity.User;
-import com.sourabh.Repository.AddressRepo;
 import com.sourabh.Repository.UserRepo;
 import com.sourabh.Request.LoginReq;
 import com.sourabh.Request.LogoutReq;
+import com.sourabh.Response.UserResponse;
+import com.sourabh.Security.JwtUtility;
 
 @Service
 public class UserService {
 	@Autowired
-	UserRepo userRepo;
-	@Autowired
-	AddressRepo addressRepo;
+	private UserRepo userRepo;
 	
-	public int login(LoginReq req) {
-		String email = req.getEmail();
+	@Autowired
+	private JwtUtility jwtUtility;
+	
+	@Autowired
+	private UserCredentialService userCredentialService;
+	
+	public UserResponse login(LoginReq request) {
+		
+		String email = request.getEmail();
 		if(userRepo.existsByEmail(email)){
-			User user = userRepo.findByEmail(email).get(0);
-			if(user.getPassword().equals(req.getPassword())) {
-				return user.getId();
+			User user = userRepo.findByEmail(email);
+			if(user.getPassword().equals(request.getPassword())) {
+				UserDetails userDetails = userCredentialService.loadUserByUsername(request.getEmail());
+			    String token = jwtUtility.generateToken(userDetails);
+				UserResponse userResponse = new UserResponse(user.getId(),token);
+			    return userResponse;
 			}
 		}
-		return -1;
+	 
+		return null;
 	}
 	
 	public Integer signup(User usr) throws Exception {

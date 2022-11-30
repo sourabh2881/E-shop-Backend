@@ -19,25 +19,20 @@ import com.sourabh.Service.UserService;
 
 
 @RestController
-@CrossOrigin(origins="http://localhost:3000/")
+@CrossOrigin
 public class UserController {
 	
 	@Autowired
 	UserService userService ;
 
 	@PostMapping("/login")
-	public ResponseEntity<?> login(@RequestBody LoginReq req) {
-		
-		GeneralResponse resp = new GeneralResponse();
-		int id = userService.login(req);
-		if(id==-1) {
-			resp.setResp("Invalid Credentials!");
-			return new ResponseEntity<GeneralResponse>(resp,HttpStatus.UNAUTHORIZED);
+	public ResponseEntity<UserResponse> login(@RequestBody LoginReq req) {
+		UserResponse userResponse= userService.login(req);
+		if(userResponse==null) {
+			UserResponse resp = new UserResponse(-1, null);
+			return new ResponseEntity<UserResponse>(resp,HttpStatus.UNAUTHORIZED);
 		}
-		resp.setResp("Success");
-		UserResponse res = new UserResponse();
-		res.setId(id);
-		return new ResponseEntity<UserResponse>(res,HttpStatus.OK);
+		return new ResponseEntity<UserResponse>(userResponse,HttpStatus.OK);
 	}
 	
 	@PostMapping("/signup")
@@ -62,7 +57,6 @@ public class UserController {
 			resp.setResp("Faliure!");
 			return new ResponseEntity<GeneralResponse>(resp,HttpStatus.UNAUTHORIZED);
 		}
-		
 		return new ResponseEntity<String>("success",HttpStatus.OK);
 	}
 	

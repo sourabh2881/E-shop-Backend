@@ -2,6 +2,8 @@ package com.sourabh.Service;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -13,7 +15,7 @@ import javax.persistence.criteria.Root;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.sourabh.Entity.Products;
+import com.sourabh.Entity.Product;
 import com.sourabh.Repository.ProductRepo;
 import com.sourabh.Request.FilterRequest;
 import com.sourabh.Request.ProductUpdateRequest;
@@ -31,52 +33,51 @@ public class ProductService {
 	@Autowired
 	EntityManager em; 
 	
-	public Products addProduct(ProductsRequest req ){
-		Products prod = this.modelMapper.map(req, Products.class);
+	public Product addProduct(ProductsRequest req ){
+		Product prod = this.modelMapper.map(req, Product.class);
 		productRepo.save(prod);
 		return prod;	
 	}
 	
-	public Products updateProduct(ProductUpdateRequest req) {
+	public Product updateProduct(ProductUpdateRequest req) {
 		int id = req.getId();
-		Products check = productRepo.findById(id);
+		Product check = productRepo.findById(id);
 		if(check==null) {
 			return null;
 		}
-		Products prod = this.modelMapper.map(req, Products.class);
+		Product prod = this.modelMapper.map(req, Product.class);
 		productRepo.save(prod);
 		return prod;
 	}
 	
-	public Products getById(int id) {
-		Products prod = productRepo.findById(id);
+	public Product getById(int id) {
+		Product prod = productRepo.findById(id);
 		return prod;
 	}
 
-	public List<Products> getByCategory(String category) {
+	public List<Product> getByCategory(String category) {
 		
-		List<Products> prod = productRepo.findByCategory(category);
+		List<Product> prod = productRepo.findByCategory(category);
 		return prod;
 	}
 	
-	public List<Products> searchString(String searchString) {
+	public List<Product> searchString(String searchString) {
 		String trimmed = searchString.replaceAll("\\s{2,}", " ").trim();
 		String[] searchArray = trimmed.split(" ");
-		if(searchArray.length==0) {
+		if(searchArray.length==1) {
 			return productRepo.findAll();
 		}
 	
 		CriteriaBuilder cb = em.getCriteriaBuilder();
-		CriteriaQuery<Products> cq = cb.createQuery(Products.class);
-		Root<Products> productRoot = cq.from(Products.class);
+		CriteriaQuery<Product> cq = cb.createQuery(Product.class);
+		Root<Product> productRoot = cq.from(Product.class);
 		List<Predicate> predicates = new LinkedList<>();
 		
 		Predicate byName = cb.like(productRoot.get("name"), "%" + searchArray[0] + "%");
 		Predicate byCategory = cb.like(productRoot.get("category"), "%" + searchArray[0] + "%");
 		Predicate result = cb.or(byName,byCategory);
 
-		for(int i=1; i<searchArray.length;i++) {
-			System.out.println(searchArray[i]);
+		for(int i=1; i+1<searchArray.length;i++) {
 			byCategory = cb.like(productRoot.get("category"), "%" + searchArray[i] + "%");
 			result = cb.or(result,byCategory);
 			byName = cb.like(productRoot.get("name"), "%" + searchArray[i] + "%");
@@ -87,17 +88,29 @@ public class ProductService {
 		Predicate[] predArray = new Predicate[predicates.size()];
 		predicates.toArray(predArray);
 		cq.where(predArray);
-		TypedQuery<Products> query = em.createQuery(cq);
+		TypedQuery<Product> query = em.createQuery(cq);
 		return query.getResultList();
 	}
 
-	public List<Products> filterPrice(FilterRequest req, String category) {
-		List<Products> prod = productRepo.filterPrice(category,req.getMinPrice(), req.getMaxPrice());
+	public List<Product> filterPrice(FilterRequest req, String category) {
+		if(category.equalsIgnoreCase("All")) {
+			category="";
+		}
+		List<Product> prod = productRepo.filterPrice(category,req.getMinPrice()-1, req.getMaxPrice()+1);
 		return prod;
 	}
 
-	public List<Products> getAllProducts() {
+	public List<Product> getAllProducts() {
 		return productRepo.findAll();
+	}
+
+	public SortedSet<String> getAllCategories() {
+		List<Product> products = productRepo.findAll();
+		SortedSet<String> categories = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+		for(Product product: products) {
+			categories.add(product.getCategory());
+		}
+		return categories;
 	}
 	
 }
