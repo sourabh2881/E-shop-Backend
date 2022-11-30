@@ -9,7 +9,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -47,7 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors()
                 .and()
                 .authorizeRequests()
-                .antMatchers("/products/search/{searchString}","/products/{category}","/products/{category}/getFiltered","/logout","/login","/products/allProducts","/products/{category}").permitAll()
+                .antMatchers("/products/search/{searchString}","/products/{category}","/products/getAllProducts","/products/{category}/getFiltered","/signup","/logout","/login").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
@@ -55,10 +55,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
        
     }
+    
+//    @Bean
+//    public AuthenticationProvider daoAuthenticationProvider() {
+//      DaoAuthenticationProvider provider = 
+//        new DaoAuthenticationProvider();
+//      provider.setPasswordEncoder(passwordEncoder());
+//      provider.setUserDetailsService(this.userCredentialService);
+//      return provider;
+//    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance();
+        return new BCryptPasswordEncoder(10);
     }
 
     @Bean
@@ -71,9 +80,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);
         return source;
-//        FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<CorsFilter>(new CorsFilter(source));
-//        bean.setOrder(0);
-//        return bean;
     }
 
 }

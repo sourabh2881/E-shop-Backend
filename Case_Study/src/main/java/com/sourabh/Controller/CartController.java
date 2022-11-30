@@ -29,6 +29,9 @@ public class CartController {
 	@GetMapping("/{userId}/getCart")
 	public List<CartItem> getCart(@PathVariable("userId") int uid) {
 		Cart cart = cartService.getCart(uid);
+		if(cart==null) {
+			return null;
+		}
 		return cart.getCartItem();
 	}
 	

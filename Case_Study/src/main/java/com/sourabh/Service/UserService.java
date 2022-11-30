@@ -2,6 +2,7 @@ package com.sourabh.Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.sourabh.Entity.User;
@@ -22,12 +23,14 @@ public class UserService {
 	@Autowired
 	private UserCredentialService userCredentialService;
 	
+	@Autowired
+	PasswordEncoder passwordEncoder;
+	
 	public UserResponse login(LoginReq request) {
-		
 		String email = request.getEmail();
 		if(userRepo.existsByEmail(email)){
 			User user = userRepo.findByEmail(email);
-			if(user.getPassword().equals(request.getPassword())) {
+			if(passwordEncoder.matches(request.getPassword(), user.getPassword())) {
 				UserDetails userDetails = userCredentialService.loadUserByUsername(request.getEmail());
 			    String token = jwtUtility.generateToken(userDetails);
 				UserResponse userResponse = new UserResponse(user.getId(),token);
@@ -42,6 +45,7 @@ public class UserService {
 		if (userRepo.existsByEmail(usr.getEmail()) || usr.getId()!=0) {
 			throw new Exception();
 		} 
+		usr.setPassword(passwordEncoder.encode(usr.getPassword()));
 		userRepo.save(usr);
 		return usr.getId();
 	}
